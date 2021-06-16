@@ -1,0 +1,1074 @@
+Create Tables
+
+DROP TABLE Enrol;
+DROP TABLE Fine_Payment;
+DROP TABLE Return;
+DROP TABLE Borrow;
+DROP TABLE Res;
+DROP TABLE Class;
+DROP TABLE MEMBER;
+DROP TABLE Copies;
+
+CREATE TABLE Copies
+( Member_Type varchar2(20),
+  Copies_Allowed number(10),
+  CONSTRAINT Member_Type 
+   CHECK (Member_Type IN ('Student', 'Staff')),
+  CONSTRAINT Copies_Allowed
+   CHECK (Copies_Allowed IN (5, 10)),
+  CONSTRAINT Copies_pk PRIMARY KEY (Member_Type)
+);
+
+CREATE TABLE MEMBER
+( Member_ID number(30),
+  Member_Type varchar2(20) NOT NULL,
+  Member_Name varchar2(250) NOT NULL,
+  Member_Email varchar2(1000) NOT NULL UNIQUE,
+  Expiry_Date DATE NOT NULL,
+  CHECK (Member_Email LIKE '%@%'), 
+  CHECK (Member_Email LIKE '%.%'), 
+  CONSTRAINT Mem_pk PRIMARY KEY (Member_ID),
+  CONSTRAINT Mem_fk FOREIGN KEY (Member_Type) REFERENCES Copies(Member_Type)
+);
+
+CREATE TABLE Class  
+( Class_No number GENERATED ALWAYS AS IDENTITY start with 101,
+  Class_Name varchar2(250) NOT NULL UNIQUE,
+  CONSTRAINT Class_pk PRIMARY KEY (Class_No)  
+); 
+
+CREATE TABLE Res  
+(Resource_ID NUMBER GENERATED ALWAYS AS IDENTITY start with 100001,  
+  Resource_Title varchar2(250) NOT NULL,
+  Total_Copies number(10) NOT NULL,
+  Loan_Period number(10) NOT NULL,
+  Floor_No number(10) NOT NULL,
+  Shelf_No varchar2(20) NOT NULL,
+  Class_no number(10) NOT NULL,
+  Resource_Type varchar2(5) NOT NULL,
+  Author varchar2(250),
+  Release_Date Date NOT NULL,
+  Publsh_Drct_Art varchar2(250) NOT NULL,
+  Edit Number,
+  CONSTRAINT Loan_Period_Check
+   CHECK (Loan_Period IN (0, 2, 14)),
+  CONSTRAINT Floor_No_check
+   CHECK (Floor_No IN (0,1,2)),
+   CHECK (Resource_Type IN ('Book', 'Video', 'CD', 'DVD')),
+  UNIQUE(Floor_No, Shelf_No), 
+  CONSTRAINT Res_pk PRIMARY KEY (Resource_ID),
+  CONSTRAINT Res_fk FOREIGN KEY (Class_No) REFERENCES Class(Class_No)
+);
+
+CREATE TABLE Borrow
+( Member_ID number(30),
+  Resource_ID NUMBER,
+  Due_Date DATE NOT NULL,
+  Loan_ID NUMBER GENERATED ALWAYS AS IDENTITY start with 1000001 UNIQUE,
+  CONSTRAINT Borrow_pk PRIMARY KEY (Member_ID, Resource_ID, Due_Date),
+  CONSTRAINT Borrow_fk1 FOREIGN KEY (Member_ID) REFERENCES MEMBER(Member_ID),
+  CONSTRAINT Borrow_fk2 FOREIGN KEY (Resource_ID) REFERENCES Res(Resource_ID)
+);
+
+CREATE TABLE Return  
+( Loan_ID NUMBER,  
+  Return_Date DATE NOT NULL,
+  CONSTRAINT Return_pk PRIMARY KEY (Loan_ID),
+  CONSTRAINT Return_fk FOREIGN KEY (Loan_ID) REFERENCES Borrow(Loan_ID)
+);
+
+CREATE TABLE Fine_Payment
+( Loan_ID NUMBER,
+  Date_Paid Date NOT NULL,
+  Amount_Paid number(20) NOT NULL,
+  CONSTRAINT FinePayment_pk PRIMARY KEY (Loan_ID),
+  CONSTRAINT FinePayment_fk FOREIGN KEY (Loan_ID) REFERENCES Borrow(Loan_ID)
+);
+
+CREATE TABLE Enrol
+( Member_ID number(30),
+  Class_No NUMBER,
+  Enrol_Date DATE NOT NULL,
+  CONSTRAINT Enrol_pk PRIMARY KEY (Member_ID, Class_No),
+  CONSTRAINT Enrol_fk1 FOREIGN KEY (Member_ID) REFERENCES MEMBER(Member_ID),
+  CONSTRAINT Enrol_fk2 FOREIGN KEY (Class_No) REFERENCES Class(Class_No)
+);
+
+
+Data
+
+INSERT INTO Copies
+(Member_Type, Copies_Allowed)
+VALUES ('Student', 5)
+;
+INSERT INTO Copies
+(Member_Type, Copies_Allowed)
+VALUES ('Staff', 10)
+;
+/* Cannot Insert as the value of member type can only be student or staff*/
+INSERT INTO Copies
+(Member_Type, Copies_Allowed)
+VALUES ('Employer', 5)
+;
+SELECT * FROM Copies;
+
+INSERT INTO MEMBER
+(Member_ID, Member_Type, Member_Name, Member_Email, Expiry_Date)
+VALUES (202001, 'Student', 'Shajeda', 'shajedasyed@yahoo.com', '23-JAN-2023')
+;
+INSERT INTO MEMBER
+(Member_ID, Member_Type, Member_Name, Member_Email, Expiry_Date)
+VALUES (202002, 'Student', 'Kayley', 'kanett@hotmail.co.uk', '28-JAN-2024')
+;
+INSERT INTO MEMBER
+(Member_ID, Member_Type, Member_Name, Member_Email, Expiry_Date)
+VALUES (202003, 'Student', 'Purvi', 'purvimandodadoda@hotmail.co.uk', '21-JAN-2023')
+;
+INSERT INTO MEMBER
+(Member_ID, Member_Type, Member_Name, Member_Email, Expiry_Date)
+VALUES (202004, 'Student', 'Steven', 'stevencorpuz@gmail.co.uk', '14-JAN-2023')
+;
+INSERT INTO MEMBER
+(Member_ID, Member_Type, Member_Name, Member_Email, Expiry_Date)
+VALUES (202005, 'Student', 'Hana', 'hanarahman@hotmail.com', '29-JAN-2021')
+;
+INSERT INTO MEMBER
+(Member_ID, Member_Type, Member_Name, Member_Email, Expiry_Date)
+VALUES (202006, 'Student', 'Rohit', 'rohitgarg12@hotmail.com', '14-JAN-2023')
+;
+INSERT INTO MEMBER
+(Member_ID, Member_Type, Member_Name, Member_Email, Expiry_Date)
+VALUES (202007, 'Student', 'Tanya', 'tanyasyed_@yahoo.com', '20-JAN-2024')
+;
+INSERT INTO MEMBER
+(Member_ID, Member_Type, Member_Name, Member_Email, Expiry_Date)
+VALUES (202008, 'Student', 'Cef', 'cefalrahman@hotmail.com', '22-JAN-2024')
+;
+INSERT INTO MEMBER
+(Member_ID, Member_Type, Member_Name, Member_Email, Expiry_Date)
+VALUES (202009, 'Student', 'Daniel', 'debenham_dan@hotmail.co.uk', '25-JAN-2023')
+;
+INSERT INTO MEMBER
+(Member_ID, Member_Type, Member_Name, Member_Email, Expiry_Date)
+VALUES (202010, 'Student', 'Holly', 'hollylou@outlook.co.uk', '30-JAN-2023')
+;
+INSERT INTO MEMBER
+(Member_ID, Member_Type, Member_Name, Member_Email, Expiry_Date)
+VALUES (202011, 'Student', 'Rafayet', 'rafayettarafder@live.co.uk', '21-JAN-2022')
+;
+INSERT INTO MEMBER
+(Member_ID, Member_Type, Member_Name, Member_Email, Expiry_Date)
+VALUES (202012, 'Student', 'Ope', 'oppeeeee@outlook.co.uk', '21-JAN-2022')
+;
+INSERT INTO MEMBER
+(Member_ID, Member_Type, Member_Name, Member_Email, Expiry_Date)
+VALUES (202013, 'Student', 'Jack', 'jack_1995@hotmail.co.uk', '25-JAN-2023')
+;
+INSERT INTO MEMBER
+(Member_ID, Member_Type, Member_Name, Member_Email, Expiry_Date)
+VALUES (202014, 'Student', 'Teddy', 'teddy.moonshine@live.co.uk', '29-JAN-2022')
+;
+INSERT INTO MEMBER
+(Member_ID, Member_Type, Member_Name, Member_Email, Expiry_Date)
+VALUES (202015, 'Student', 'Maria', 'maria.678@gmail.com', '21-JAN-2021')
+;
+INSERT INTO MEMBER
+(Member_ID, Member_Type, Member_Name, Member_Email, Expiry_Date)
+VALUES (202101, 'Staff', 'Vicky', 'v.anderson@qmul.ac.uk', '25-JAN-2029')
+;
+INSERT INTO MEMBER
+(Member_ID, Member_Type, Member_Name, Member_Email, Expiry_Date)
+VALUES (202102, 'Staff', 'Mahesha', 'm.soong@qmul.ac.uk', '25-JAN-2031')
+;
+INSERT INTO MEMBER
+(Member_ID, Member_Type, Member_Name, Member_Email, Expiry_Date)
+VALUES (202103, 'Staff', 'Chris', 'c.davidson2@qmul.ac.uk', '25-JAN-2035')
+;
+INSERT INTO MEMBER
+(Member_ID, Member_Type, Member_Name, Member_Email, Expiry_Date)
+VALUES (202104, 'Staff', 'Fabrizio', 'c.caine@qmul.ac.uk', '19-JAN-2021')
+;
+INSERT INTO MEMBER
+(Member_ID, Member_Type, Member_Name, Member_Email, Expiry_Date)
+VALUES (202105, 'Staff', 'Mark', 'm.amaral@qmul.ac.uk', '28-JAN-2033')
+;
+INSERT INTO MEMBER
+(Member_ID, Member_Type, Member_Name, Member_Email, Expiry_Date)
+VALUES (202106, 'Staff', 'Sophie', 's.willoughby@qmul.ac.uk', '29-JAN-2035')
+;
+INSERT INTO MEMBER
+(Member_ID, Member_Type, Member_Name, Member_Email, Expiry_Date)
+VALUES (202107, 'Staff', 'Paula', 'p.lopez@qmul.ac.uk', '29-JAN-2021')
+;
+INSERT INTO MEMBER
+(Member_ID, Member_Type, Member_Name, Member_Email, Expiry_Date)
+VALUES (202108, 'Staff', 'Clive', 'c.steele@qmul.ac.uk', '31-JAN-2022')
+;
+INSERT INTO MEMBER
+(Member_ID, Member_Type, Member_Name, Member_Email, Expiry_Date)
+VALUES (202109, 'Staff', 'Nenna', 'n.laal@qmul.ac.uk', '24-JAN-2025')
+;
+INSERT INTO MEMBER
+(Member_ID, Member_Type, Member_Name, Member_Email, Expiry_Date)
+VALUES (202110, 'Staff', 'Anne', 'a.zhang@qmul.ac.uk', '29-JAN-2025')
+;
+INSERT INTO MEMBER
+(Member_ID, Member_Type, Member_Name, Member_Email, Expiry_Date)
+VALUES (202111, 'Staff', 'Nicola', 'n.phillips@qmul.ac.uk', '23-JAN-2022')
+;
+INSERT INTO MEMBER
+(Member_ID, Member_Type, Member_Name, Member_Email, Expiry_Date)
+VALUES (202112, 'Staff', 'Ken', 'ken.jones@qmul.ac.uk', '21-JAN-2027')
+;
+INSERT INTO MEMBER
+(Member_ID, Member_Type, Member_Name, Member_Email, Expiry_Date)
+VALUES (202113, 'Staff', 'Sonia', 's.patel@qmul.ac.uk', '31-JAN-2023')
+;
+SELECT * FROM MEMBER;
+
+INSERT INTO Class
+(Class_Name)
+VALUES ('Computing and Information Systems')
+;
+INSERT INTO Class
+(Class_Name)
+VALUES ('Actuarial Science')
+;
+INSERT INTO Class
+(Class_Name)
+VALUES ('Biomedical Sciences')
+;
+INSERT INTO Class
+(Class_Name)
+VALUES ('Electronic Engineering')
+;
+INSERT INTO Class
+(Class_Name)
+VALUES ('Law')
+;
+INSERT INTO Class
+(Class_Name)
+VALUES ('Accounting and Finance')
+;
+INSERT INTO Class
+(Class_Name)
+VALUES ('French and Politics')
+;
+INSERT INTO Class
+(Class_Name)
+VALUES ('Finance')
+;
+INSERT INTO Class
+(Class_Name)
+VALUES ('Film Studies and Drama')
+;
+INSERT INTO Class
+(Class_Name)
+VALUES ('Business Management')
+;
+INSERT INTO Class
+(Class_Name)
+VALUES ('Computer Science')
+;
+INSERT INTO Class
+(Class_Name)
+VALUES ('Chemistry')
+;
+INSERT INTO Class
+(Class_Name)
+VALUES ('History')
+;
+INSERT INTO Class
+(Class_Name)
+VALUES ('Dentistry')
+;
+INSERT INTO Class
+(Class_Name)
+VALUES ('Materials Science and Engineering')
+;
+INSERT INTO Class
+(Class_Name)
+VALUES ('Computer Programming')
+;
+INSERT INTO Class
+(Class_Name)
+VALUES ('Iridology')
+;
+INSERT INTO Class
+(Class_Name)
+VALUES ('Biology')
+;
+INSERT INTO Class
+(Class_Name)
+VALUES ('Forensic Science')
+;
+INSERT INTO Class
+(Class_Name)
+VALUES ('Physics')
+;
+INSERT INTO Class
+(Class_Name)
+VALUES ('Literature')
+;
+INSERT INTO Class
+(Class_Name)
+VALUES ('Anatomy')
+;
+SELECT * FROM Class; 
+
+INSERT INTO Res
+(Resource_Title, Total_Copies, Loan_Period, Floor_No, Shelf_No, Class_no, Resource_Type, Author, Publsh_Drct_Art, Release_Date, Edit)
+VALUES ('Forensic Science', 12, 14, 1, 50, 119, 'Book', 'Mike Milligan', 'HarperCollins', '15-DEC-14', 1)
+;
+INSERT INTO Res
+(Resource_Title, Total_Copies, Loan_Period, Floor_No, Shelf_No, Class_no, Resource_Type, Author, Publsh_Drct_Art, Release_Date, Edit)
+VALUES ('Crime Scene to Court: The Essentials of Forensic Science', 3, 14, 1, 51, 108, 'Book', 'Alice Newman', 'Oxford University Press', '15-DEC-18', 2)
+;
+INSERT INTO Res
+(Resource_Title, Total_Copies, Loan_Period, Floor_No, Shelf_No, Class_no, Resource_Type, Author, Publsh_Drct_Art, Release_Date, Edit)
+VALUES ('The Law Book: Big Ideas Simply Explained', 5, 14, 0, 80, 105, 'Book', 'Fatima Choudhury', 'Penguin', '15-DEC-12', 1)
+;
+INSERT INTO Res
+(Resource_Title, Total_Copies, Loan_Period, Floor_No, Shelf_No, Class_no, Resource_Type, Author, Publsh_Drct_Art, Release_Date, Edit)
+VALUES ('The Human Bone Manual', 7, 14, 0, 112, 105, 'Book', 'Laura Black', 'Cambridge Press', '15-DEC-16', 3)
+;
+INSERT INTO Res
+(Resource_Title, Total_Copies, Loan_Period, Floor_No, Shelf_No, Class_no, Resource_Type, Author, Publsh_Drct_Art, Release_Date, Edit)
+VALUES ('Python for Data Analysis, 2e: Data Wrangling with Pandas, Numpy, and Ipython', 4, 2, 2, 25, 117, 'Book', 'Cole Esher', 'Red House', '15-DEC-14', 1)
+;
+INSERT INTO Res
+(Resource_Title, Total_Copies, Loan_Period, Floor_No, Shelf_No, Class_no, Resource_Type, Author, Publsh_Drct_Art, Release_Date, Edit)
+VALUES ('Python: For Beginners A Crash Course Guide To Learn Python in 1 Week', 2, 2, 2, 35, 111,'Book', 'Kat Park', 'HarperCollins', '15-DEC-13', 1)
+;
+INSERT INTO Res
+(Resource_Title, Total_Copies, Loan_Period, Floor_No, Shelf_No, Class_no, Resource_Type, Author, Publsh_Drct_Art, Release_Date, Edit)
+VALUES ('The Eye: Basic Sciences in Practice', 3, 14, 1, 64, 119, 'Book', 'Emmett Fox', 'Bloomsbury', '15-DEC-09', 1)
+;
+INSERT INTO Res
+(Resource_Title, Total_Copies, Loan_Period, Floor_No, Shelf_No, Class_no, Resource_Type, Author, Publsh_Drct_Art, Release_Date, Edit)
+VALUES ('Science and Development of Muscle Hypertrophy', 2, 14, 1, 119, 122, 'Book', 'Jenny Jones', 'Macmillan', '15-DEC-04', 4)
+;
+INSERT INTO Res
+(Resource_Title, Total_Copies, Loan_Period, Floor_No, Shelf_No, Class_no, Resource_Type, Author, Publsh_Drct_Art, Release_Date, Edit)
+VALUES ('The Silent Patient', 2, 14, 0, 25, 121, 'Book', 'Beau Allard', 'Pearson Education', '15-DEC-17', 1)
+;
+INSERT INTO Res
+(Resource_Title, Total_Copies, Loan_Period, Floor_No, Shelf_No, Class_no, Resource_Type, Author, Publsh_Drct_Art, Release_Date, Edit)
+VALUES ('In the Midst of Life', 5, 14, 0, 141, 121, 'Book', 'Carla Dela Pena', 'Bloomsbury', '6-JUN-1980', 4)
+;
+INSERT INTO Res
+(Resource_Title, Total_Copies, Loan_Period, Floor_No, Shelf_No, Class_no, Resource_Type, Author, Publsh_Drct_Art, Release_Date, Edit)
+VALUES ('The Mighty Muscles', 4, 0, 0, 145, 105, 'Book', 'Jester Abayari', 'Oxford University Press', '19-JUN-2017', 1)
+;
+INSERT INTO Res
+(Resource_Title, Total_Copies, Loan_Period, Floor_No, Shelf_No, Class_no, Resource_Type, Author, Publsh_Drct_Art, Release_Date, Edit)
+VALUES ('The Forensic Laboratory', 1, 0, 0, 55, 108, 'Book', 'Theresa Wolf', 'Red House', '03-FEB-2006', 1)
+;
+INSERT INTO Res
+(Resource_Title, Total_Copies, Loan_Period, Floor_No, Shelf_No, Class_no, Resource_Type, Publsh_Drct_Art, Release_Date)
+VALUES ('The Life of Bo Jones', 1, 14, 2, 294, 118, 'Video', 'Naomi Parker', '24-JAN-02')
+;
+INSERT INTO Res
+(Resource_Title, Total_Copies, Loan_Period, Floor_No, Shelf_No, Class_no, Resource_Type, Publsh_Drct_Art, Release_Date)
+VALUES ('Cooking with Ingra', 1, 14, 2, 212, 122, 'Video', 'Kendrick Smith', '05-APR-04')
+;
+INSERT INTO Res
+(Resource_Title, Total_Copies, Loan_Period, Floor_No, Shelf_No, Class_no, Resource_Type, Publsh_Drct_Art, Release_Date)
+VALUES ('The Human Body', 3, 14, 2, 422, 122, 'Video', 'Jules Verner', '30-JUL-05')
+;
+INSERT INTO Res
+(Resource_Title, Total_Copies, Loan_Period, Floor_No, Shelf_No, Class_no, Resource_Type, Publsh_Drct_Art, Release_Date)
+VALUES ('Skin and Bones', 1, 14, 2, 367, 111, 'Video', 'John Adams', '27-NOV-01')
+;
+INSERT INTO Res
+(Resource_Title, Total_Copies, Loan_Period, Floor_No, Shelf_No, Class_no, Resource_Type, Publsh_Drct_Art, Release_Date)
+VALUES ('The Future of AI', 7, 14, 2, 469, 111, 'Video', 'Arthur Read', '08-OCT-01')
+;
+INSERT INTO Res
+(Resource_Title, Total_Copies, Loan_Period, Floor_No, Shelf_No, Class_no, Resource_Type, Publsh_Drct_Art, Release_Date)
+VALUES ('Playing Games', 1, 14, 2, 267, 122, 'Video', 'Ophelia Wroe', '28-JAN-01')
+;
+INSERT INTO Res
+(Resource_Title, Total_Copies, Loan_Period, Floor_No, Shelf_No, Class_no, Resource_Type, Publsh_Drct_Art, Release_Date)
+VALUES ('Music Theory', 1, 14, 2, 128, 122, 'Video', 'Nazrin Uddin', '21-OCT-04')
+;
+INSERT INTO Res
+(Resource_Title, Total_Copies, Loan_Period, Floor_No, Shelf_No, Class_no, Resource_Type, Publsh_Drct_Art, Release_Date)
+VALUES ('Robotics', 1, 14, 2, 510, 117, 'Video', 'Raksha Patel', '13-JAN-06')
+;
+INSERT INTO Res
+(Resource_Title, Total_Copies, Loan_Period, Floor_No, Shelf_No, Class_no, Resource_Type, Publsh_Drct_Art, Release_Date)
+VALUES ('Paris in 5 Days', 1, 14, 2, 460, 112, 'Video', 'Carmen Lo', '06-MAR-02')
+;
+INSERT INTO Res
+(Resource_Title, Total_Copies, Loan_Period, Floor_No, Shelf_No, Class_no, Resource_Type, Publsh_Drct_Art, Release_Date)
+VALUES ('Python for Beginners', 4, 14, 1, 89, 111, 'Video', 'Suella Burns', '09-FEB-03')
+;
+INSERT INTO Res
+(Resource_Title, Total_Copies, Loan_Period, Floor_No, Shelf_No, Class_no, Resource_Type, Publsh_Drct_Art, Release_Date)
+VALUES ('WW2:True Stories', 1, 14, 1, 46, 113, 'CD', 'Holly News', '18-MAY-17')
+;
+INSERT INTO Res
+(Resource_Title, Total_Copies, Loan_Period, Floor_No, Shelf_No, Class_no, Resource_Type, Publsh_Drct_Art, Release_Date)
+VALUES ('Law and Order', 1, 14, 1, 63, 105, 'CD', 'Melissa White', '24-FEB-20')
+;
+INSERT INTO Res
+(Resource_Title, Total_Copies, Loan_Period, Floor_No, Shelf_No, Class_no, Resource_Type, Publsh_Drct_Art, Release_Date)
+VALUES ('War on Drugs', 1, 14, 1, 105, 105, 'CD', 'Faizan Alim', '21-MAR-18')
+;
+INSERT INTO Res
+(Resource_Title, Total_Copies, Loan_Period, Floor_No, Shelf_No, Class_no, Resource_Type, Publsh_Drct_Art, Release_Date)
+VALUES ('The Animal Kingdom', 1, 14, 1, 460, 118, 'CD', 'Andres Luna', '14-APR-12')
+;
+INSERT INTO Res
+(Resource_Title, Total_Copies, Loan_Period, Floor_No, Shelf_No, Class_no, Resource_Type, Publsh_Drct_Art, Release_Date)
+VALUES ('A Question of Ethics', 1, 14, 1, 80, 105, 'CD', 'Hanisha Dubasia', '04-AUG-18')
+;
+INSERT INTO Res
+(Resource_Title, Total_Copies, Loan_Period, Floor_No, Shelf_No, Class_no, Resource_Type, Publsh_Drct_Art, Release_Date)
+VALUES ('American Civil Rights', 1, 14, 1, 69, 105, 'CD', 'Montaha Behum', '08-NOV-16')
+;
+INSERT INTO Res
+(Resource_Title, Total_Copies, Loan_Period, Floor_No, Shelf_No, Class_no, Resource_Type, Publsh_Drct_Art, Release_Date)
+VALUES ('Statistics', 1, 14, 1, 100, 108, 'CD', 'Shaira Malik', '14-FEB-17')
+;
+INSERT INTO Res
+(Resource_Title, Total_Copies, Loan_Period, Floor_No, Shelf_No, Class_no, Resource_Type, Publsh_Drct_Art, Release_Date)
+VALUES ('The Red Planet', 1, 14, 1, 212, 120, 'CD', 'Lisa Jones', '09-SEP-19')
+;
+INSERT INTO Res
+(Resource_Title, Total_Copies, Loan_Period, Floor_No, Shelf_No, Class_no, Resource_Type, Publsh_Drct_Art, Release_Date)
+VALUES ('Our Solar System', 1, 14, 1, 213, 120, 'CD', 'Buster Baxter', '07-MAY-13')
+;
+INSERT INTO Res
+(Resource_Title, Total_Copies, Loan_Period, Floor_No, Shelf_No, Class_no, Resource_Type, Publsh_Drct_Art, Release_Date)
+VALUES ('The Animal Kingdom', 1, 14, 1, 263, 118, 'CD',  'Peggy Michaelson', '24-DEC-15')
+;
+INSERT INTO Res
+(Resource_Title, Total_Copies, Loan_Period, Floor_No, Shelf_No, Class_no, Resource_Type, Publsh_Drct_Art, Release_Date)
+VALUES ('Forensic Science', 1, 14, 1, 300, 119, 'DVD', 'Cameron Carter', '16-AUG-19')
+;
+INSERT INTO Res
+(Resource_Title, Total_Copies, Loan_Period, Floor_No, Shelf_No, Class_no, Resource_Type, Publsh_Drct_Art, Release_Date)
+VALUES ('The Basics of Python', 3, 14, 1, 200, 101, 'DVD', 'Abdul Shah', '23-MAR-17')
+;
+INSERT INTO Res
+(Resource_Title, Total_Copies, Loan_Period, Floor_No, Shelf_No, Class_no, Resource_Type, Publsh_Drct_Art, Release_Date)
+VALUES ('Blood Spatter Analysis', 1, 14, 1, 62, 119, 'DVD', 'Jessminda Patel', '03-JAN-18'
+)
+;
+INSERT INTO Res
+(Resource_Title, Total_Copies, Loan_Period, Floor_No, Shelf_No, Class_no, Resource_Type, Publsh_Drct_Art, Release_Date)
+VALUES ('Scanning Electron Microscopy', 1, 14, 1, 72, 119, 'DVD','May Sung', '12-OCT-15')
+;
+INSERT INTO Res
+(Resource_Title, Total_Copies, Loan_Period, Floor_No, Shelf_No, Class_no, Resource_Type, Publsh_Drct_Art, Release_Date)
+VALUES ('African Safari', 1, 14, 1, 120, 101, 'DVD', 'Saleha Bagom', '06-OCT-14')
+;
+INSERT INTO Res
+(Resource_Title, Total_Copies, Loan_Period, Floor_No, Shelf_No, Class_no, Resource_Type, Publsh_Drct_Art, Release_Date)
+VALUES ('The Goldilocks Zone', 1, 14, 1, 139, 101, 'DVD', 'Nazma Hussein', '14-MAY-16')
+;
+INSERT INTO Res
+(Resource_Title, Total_Copies, Loan_Period, Floor_No, Shelf_No, Class_no, Resource_Type, Publsh_Drct_Art, Release_Date)
+VALUES ('Life of Crime', 1, 14, 1, 269, 101, 'DVD', 'Eve Valentine', '21-SEP-19')
+;
+INSERT INTO Res
+(Resource_Title, Total_Copies, Loan_Period, Floor_No, Shelf_No, Class_no, Resource_Type, Publsh_Drct_Art, Release_Date)
+VALUES ('The First World War', 1, 14, 1, 216, 101, 'DVD', 'Ronald Johnson', '01-FEB-18')
+;
+INSERT INTO Res
+(Resource_Title, Total_Copies, Loan_Period, Floor_No, Shelf_No, Class_no, Resource_Type, Publsh_Drct_Art, Release_Date)
+VALUES ('The Second World War', 1, 14, 1, 217, 101, 'DVD', 'Jeremy Coulter', '09-DEC-19')
+;
+INSERT INTO Res
+(Resource_Title, Total_Copies, Loan_Period, Floor_No, Shelf_No, Class_no, Resource_Type, Publsh_Drct_Art, Release_Date)
+VALUES ('Frozen-2', 1, 14, 1, 319, 121, 'DVD', 'Chris Buck', '17-JUL-09')
+;
+INSERT INTO Res
+(Resource_Title, Total_Copies, Loan_Period, Floor_No, Shelf_No, Class_no, Resource_Type, Publsh_Drct_Art, Release_Date)
+VALUES ('Logical Coding', 1, 14, 1, 204, 105, 'DVD', 'Poppy Sumawong', '17-APR-15')
+;
+SELECT * FROM Res;
+
+INSERT INTO Borrow
+(Member_ID, Resource_ID, Due_Date)
+VALUES (202005, 100036, '02-SEP-20')
+;
+INSERT INTO Borrow
+(Member_ID, Resource_ID, Due_Date)
+VALUES (202002, 100001, '04-SEP-20')
+;
+INSERT INTO Borrow
+(Member_ID, Resource_ID, Due_Date)
+VALUES (202003, 100002, '11-SEP-20')
+;
+INSERT INTO Borrow
+(Member_ID, Resource_ID, Due_Date)
+VALUES (202004, 100001, '07-SEP-20')
+;
+INSERT INTO Borrow
+(Member_ID, Resource_ID, Due_Date)
+VALUES (202005, 100002, '10-SEP-20')
+;
+INSERT INTO Borrow
+(Member_ID, Resource_ID, Due_Date)
+VALUES (202006, 100003, '13-SEP-20')
+;
+INSERT INTO Borrow
+(Member_ID, Resource_ID, Due_Date)
+VALUES (202007, 100004, '08-SEP-20')
+;
+INSERT INTO Borrow
+(Member_ID, Resource_ID, Due_Date)
+VALUES (202008, 100005, '03-SEP-20')
+;
+INSERT INTO Borrow
+(Member_ID, Resource_ID, Due_Date)
+VALUES (202009, 100006, '06-OCT-20')
+;
+INSERT INTO Borrow
+(Member_ID, Resource_ID, Due_Date)
+VALUES (202010, 100007, '11-OCT-20')
+;
+INSERT INTO Borrow
+(Member_ID, Resource_ID, Due_Date)
+VALUES (202012, 100008, '07-OCT-20')
+;
+INSERT INTO Borrow
+(Member_ID, Resource_ID, Due_Date)
+VALUES (202013, 100010, '13-OCT-20')
+;
+INSERT INTO Borrow
+(Member_ID, Resource_ID, Due_Date)
+VALUES (202014, 100009, '09-NOV-20')
+;
+INSERT INTO Borrow
+(Member_ID, Resource_ID, Due_Date)
+VALUES (202015, 100008, '06-NOV-20')
+;
+INSERT INTO Borrow
+(Member_ID, Resource_ID, Due_Date)
+VALUES (202101, 100007, '14-NOV-20')
+;
+INSERT INTO Borrow
+(Member_ID, Resource_ID, Due_Date)
+VALUES (202102, 100006, '09-NOV-20')
+;
+INSERT INTO Borrow
+(Member_ID, Resource_ID, Due_Date)
+VALUES (202103, 100012, '12-NOV-20')
+;
+INSERT INTO Borrow
+(Member_ID, Resource_ID, Due_Date)
+VALUES (202104, 100017, '08-DEC-20')
+;
+
+INSERT INTO Borrow
+(Member_ID, Resource_ID, Due_Date)
+VALUES (202106, 100023, '05-DEC-20')
+;
+INSERT INTO Borrow
+(Member_ID, Resource_ID, Due_Date)
+VALUES (202106, 100035, '05-DEC-20')
+;
+INSERT INTO Borrow
+(Member_ID, Resource_ID, Due_Date)
+VALUES (202111, 100013, '05-DEC-20')
+;
+INSERT INTO Borrow
+(Member_ID, Resource_ID, Due_Date)
+VALUES (202011, 100015, '06-DEC-20')
+;
+INSERT INTO Borrow
+(Member_ID, Resource_ID, Due_Date)
+VALUES (202012, 100021, '07-DEC-20')
+;
+INSERT INTO Borrow
+(Member_ID, Resource_ID, Due_Date)
+VALUES (202106, 100003, '09-DEC-20')
+;
+INSERT INTO Borrow
+(Member_ID, Resource_ID, Due_Date)
+VALUES (202007, 100019, '10-DEC-20')
+;
+INSERT INTO Borrow
+(Member_ID, Resource_ID, Due_Date)
+VALUES (202110, 100032, '01-DEC-20')
+;
+INSERT INTO Borrow
+(Member_ID, Resource_ID, Due_Date)
+VALUES (202109, 100040, '03-DEC-20')
+;
+INSERT INTO Borrow
+(Member_ID, Resource_ID, Due_Date)
+VALUES (202012, 100033, '06-DEC-20')
+;
+INSERT INTO Borrow
+(Member_ID, Resource_ID, Due_Date)
+VALUES (202013, 100028, '08-DEC-20')
+;
+INSERT INTO Borrow
+(Member_ID, Resource_ID, Due_Date)
+VALUES (202001, 100025, '09-DEC-20')
+;
+INSERT INTO Borrow
+(Member_ID, Resource_ID, Due_Date)
+VALUES (202004, 100026, '11-DEC-20')
+;
+INSERT INTO Borrow
+(Member_ID, Resource_ID, Due_Date)
+VALUES (202104, 100017, '11-DEC-20')
+;
+INSERT INTO Borrow
+(Member_ID, Resource_ID, Due_Date)
+VALUES (202105, 100019, '12-DEC-20')
+;
+INSERT INTO Borrow
+(Member_ID, Resource_ID, Due_Date)
+VALUES (202011, 100039, '12-DEC-20')
+;
+INSERT INTO Borrow
+(Member_ID, Resource_ID, Due_Date)
+VALUES (202012, 100037, '12-DEC-20')
+;
+INSERT INTO Borrow
+(Member_ID, Resource_ID, Due_Date)
+VALUES (202015, 100018, '12-DEC-20')
+;
+INSERT INTO Borrow
+(Member_ID, Resource_ID, Due_Date)
+VALUES (202113, 100023, '16-DEC-20')
+;
+INSERT INTO Borrow
+(Member_ID, Resource_ID, Due_Date)
+VALUES (202006, 100003, '17-DEC-20')
+;
+INSERT INTO Borrow
+(Member_ID, Resource_ID, Due_Date)
+VALUES (202009, 100007, '20-DEC-20')
+;
+INSERT INTO Borrow
+(Member_ID, Resource_ID, Due_Date)
+VALUES (202109, 100032, '20-DEC-20')
+;
+SELECT * FROM Borrow;
+
+INSERT INTO RETURN 
+(Loan_ID, Return_Date)
+VALUES (1000002, '02-SEP-20')
+;
+INSERT INTO RETURN 
+(Loan_ID, Return_Date)
+VALUES (1000004, '07-SEP-20')
+;
+INSERT INTO RETURN 
+(Loan_ID, Return_Date)
+VALUES (1000007, '08-SEP-20')
+;
+INSERT INTO RETURN 
+(Loan_ID, Return_Date)
+VALUES (1000005, '10-SEP-20')
+;
+INSERT INTO RETURN 
+(Loan_ID, Return_Date)
+VALUES (1000006, '20-SEP-20')
+;
+INSERT INTO RETURN 
+(Loan_ID, Return_Date)
+VALUES (1000009, '06-OCT-20')
+;
+INSERT INTO RETURN 
+(Loan_ID, Return_Date)
+VALUES (1000011, '06-OCT-20')
+;
+INSERT INTO RETURN 
+(Loan_ID, Return_Date)
+VALUES (1000014, '08-NOV-20')
+;
+INSERT INTO RETURN 
+(Loan_ID, Return_Date)
+VALUES (1000013, '09-NOV-20')
+;
+INSERT INTO RETURN 
+(Loan_ID, Return_Date)
+VALUES (1000017, '12-Nov-20')
+;
+INSERT INTO RETURN 
+(Loan_ID, Return_Date)
+VALUES (1000015, '14-NOV-20')
+;
+INSERT INTO RETURN 
+(Loan_ID, Return_Date)
+VALUES (1000012, '30-NOV-20')
+;
+INSERT INTO RETURN 
+(Loan_ID, Return_Date)
+VALUES (1000025, '03-DEC-20')
+;
+INSERT INTO RETURN 
+(Loan_ID, Return_Date)
+VALUES (1000023, '04-DEC-20')
+;
+INSERT INTO RETURN 
+(Loan_ID, Return_Date)
+VALUES (1000019, '05-DEC-20')
+;
+INSERT INTO RETURN 
+(Loan_ID, Return_Date)
+VALUES (1000021, '05-DEC-20')
+;
+INSERT INTO RETURN 
+(Loan_ID, Return_Date)
+VALUES (1000020, '06-DEC-20')
+;
+INSERT INTO RETURN 
+(Loan_ID, Return_Date)
+VALUES (1000022, '06-DEC-20')
+;
+INSERT INTO RETURN 
+(Loan_ID, Return_Date)
+VALUES (1000040, '06-DEC-20')
+;
+INSERT INTO RETURN 
+(Loan_ID, Return_Date)
+VALUES (1000018,'08-DEC-20')
+;
+INSERT INTO RETURN 
+(Loan_ID, Return_Date)
+VALUES (1000024, '09-DEC-20')
+;
+INSERT INTO RETURN 
+(Loan_ID, Return_Date)
+VALUES (1000026, '09-DEC-20')
+;
+INSERT INTO RETURN 
+(Loan_ID, Return_Date)
+VALUES (1000027, '30-Nov-20')
+;
+INSERT INTO RETURN 
+(Loan_ID, Return_Date)
+VALUES (1000028, '06-DEC-20')
+;
+INSERT INTO RETURN 
+(Loan_ID, Return_Date)
+VALUES (1000029, '05-DEC-20')
+;
+INSERT INTO RETURN 
+(Loan_ID, Return_Date)
+VALUES (1000030, '11-DEC-20')
+;
+INSERT INTO RETURN 
+(Loan_ID, Return_Date)
+VALUES (1000031, '08-DEC-20')
+;
+INSERT INTO RETURN 
+(Loan_ID, Return_Date)
+VALUES (1000032, '10-DEC-20')
+;
+INSERT INTO RETURN 
+(Loan_ID, Return_Date)
+VALUES (1000033, '13-DEC-20')
+;
+INSERT INTO RETURN 
+(Loan_ID, Return_Date)
+VALUES (1000034, '12-DEC-20')
+;
+INSERT INTO RETURN 
+(Loan_ID, Return_Date)
+VALUES (1000035, '11-DEC-20')
+;
+INSERT INTO RETURN 
+(Loan_ID, Return_Date)
+VALUES (1000036, '12-DEC-20')
+;
+INSERT INTO RETURN 
+(Loan_ID, Return_Date)
+VALUES (1000037, '12-DEC-20')
+;
+
+SELECT * FROM RETURN;
+INSERT INTO Fine_Payment
+(Loan_ID, Date_Paid, Amount_Paid)
+VALUES (1000006, '20-SEP-20', 7)
+;
+INSERT INTO Fine_Payment
+(Loan_ID, Date_Paid, Amount_Paid)
+VALUES (1000012, '02-DEC-20', 48)
+;
+INSERT INTO Fine_Payment
+(Loan_ID, Date_Paid, Amount_Paid)
+VALUES (1000014, '08-NOV-20', 2)
+;
+INSERT INTO Fine_Payment
+(Loan_ID, Date_Paid, Amount_Paid)
+VALUES (1000020, '08-DEC-20', 1)
+;
+SELECT * FROM Fine_Payment;
+
+INSERT INTO Enrol
+(Member_ID, Class_No, Enrol_Date)
+VALUES (202001, 118, '24-SEP-19')
+;
+INSERT INTO Enrol
+(Member_ID, Class_No, Enrol_Date)
+VALUES (202002, 115, '19-SEP-20')
+;
+INSERT INTO Enrol
+(Member_ID, Class_No, Enrol_Date)
+VALUES (202003, 114, '24-SEP-19')
+;
+INSERT INTO Enrol
+(Member_ID, Class_No, Enrol_Date)
+VALUES (202004, 119, '24-SEP-19')
+;
+INSERT INTO Enrol
+(Member_ID, Class_No, Enrol_Date)
+VALUES (202005, 120, '24-SEP-17')
+;
+INSERT INTO Enrol
+(Member_ID, Class_No, Enrol_Date)
+VALUES (202006, 113, '24-SEP-19')
+;
+INSERT INTO Enrol
+(Member_ID, Class_No, Enrol_Date)
+VALUES (202007, 112, '24-SEP-20')
+;
+INSERT INTO Enrol
+(Member_ID, Class_No, Enrol_Date)
+VALUES (202008, 111, '24-SEP-20')
+;
+INSERT INTO Enrol
+(Member_ID, Class_No, Enrol_Date)
+VALUES (202009, 110, '24-SEP-19')
+;
+INSERT INTO Enrol
+(Member_ID, Class_No, Enrol_Date)
+VALUES (202010, 109, '24-SEP-19')
+;
+SELECT * FROM Enrol;
+
+
+Fine Table
+
+CREATE Table Fine AS
+/* Getting Details of LoanId, MemberId, resourceID and Total Fine in case of returns */
+SELECT Borrow.Loan_ID as LoanID, Member_ID as MID, Resource_ID as RID, (RETURN_DATE - Due_Date)*1  AS Fine, Return_Date as OnDate
+FROM Return, Borrow
+WHERE Borrow.Loan_ID = Return.Loan_ID AND (Return_date - Due_Date)*1 > 0
+UNION
+/* Uniting the above with Total fine if it is not returned and passed the due date by comparing against system Date*/
+SELECT Borrow.Loan_ID AS LoanID, Member_ID as MID, Resource_ID as RID, (to_date(sysdate) - Due_DATE) AS Fine, to_date(sysdate) AS OnDate from Borrow
+where not Borrow.Loan_ID = any(select Loan_id from return) AND to_date(sysdate)>due_date;
+/* Updating the fine and calculating the fine in case of paid fine */
+UPDATE fine SET fine = Fine - NVL((select amount_paid from fine_payment
+where fine.loanid = fine_payment.Loan_ID), 0);
+DELETE Fine WHERE Fine = 0;
+select * from fine;
+
+
+Views
+
+-- TABLE SUSPEND
+CREATE OR REPLACE VIEW SUSPEND AS 
+SELECT a.MID, b.M_Name, Email, a.Overdues, TotalFine FROM
+	(SELECT MID, Count(LID1) AS Overdues FROM
+	    (SELECT MID, LoanID AS LID1 FROM
+	     fine
+	    WHERE NOT(LoanID = any(SELECT LOAN_ID FROM RETURN)))
+	 GROUP BY MID) a, /* Getting a list of all members and the count of unreturned resources*/
+	(SELECT Member_ID, Member_Name AS M_Name, Member_Email AS Email FROM Member) b, /* Get member details from Member Table*/
+	(SELECT MID, Sum(Fine) AS TotalFine FROM Fine Group By MID HAVING Sum(Fine) >= 10) c /* To check that if the sum of fines is greater than 10*/
+WHERE a.MID = b.Member_ID AND a.MID = c.MID;
+
+-- -- Available_Copies and popularity
+Create OR REPLACE View Full_Res As
+   /* Adding details of popularity (Number of borrows) and Availability (Total copies - borrows + returns) in the library system */
+Select x.Resource_ID, Resource_Title, Loan_Period, Floor_No, Shelf_No, Class_no, Resource_Type, Author, Publsh_Drct_Art, Release_Date, Edit, 
+        Total_Copies, (Total_Copies - NVL(CurrentOut,0)) as Available_Copies, NVL(Popularity, 0) AS POPULARITY From
+  /* Selecting all resources and joining them to get count of borrowed and returned resources */   
+    (Select * From Res) x LEFT OUTER JOIN
+        /* Joining the Borrowed Resources and Returned resources queries against Resource_Ids, It will have all borrowed resources*/ 
+      (Select a.Resource_ID, (Borrows - NVL(Returns,0)) AS CurrentOut, Borrows AS Popularity From
+            /* Counting the Number of borrowed Against Resource IDs*/
+          (Select Resource_ID, Count(Loan_ID) AS Borrows FROM Borrow Group By Resource_ID) a LEFT OUTER JOIN
+          /* Counting the number of returned Resource_Ids */   
+            (SELECT Resource_ID, Count(Loan_ID) AS Returns FROM
+                /* Creating a query for of all returned Loan Ids and related Resource_IDs */
+                (SELECT unique Borrow.Loan_ID, Resource_ID FROM BORROW, Return
+             WHERE Return.Loan_ID = Borrow.Loan_ID)
+           GROUP BY Resource_ID) b
+      ON a.Resource_ID = b.Resource_ID) y
+ON x.Resource_ID = y.Resource_ID
+Order BY resource_Id;
+
+--- Adding a status tab on the borrow view
+CREATE OR REPLACE VIEW full_borrow AS
+Select a.Loan_ID as Loan_ID, Member_ID As Member_ID, Due_Date AS Due_On, Resource_ID As RID, NVL(Status,'Current') As Status From
+    (Select Loan_ID, Member_ID, Due_Date, Resource_ID From Borrow) a LEFT OUTER JOIN
+    (Select Loan_ID, 'Previous' AS Status From Borrow Where 
+                Borrow.Loan_Id = any(select Loan_id from Return)) b
+    ON
+    a.loan_ID = b.loan_ID;
+    
+
+Queries
+
+SELECT Member_ID, Member_Name, Member_Email, Expiry_Date
+FROM MEMBER
+WHERE Member_Type = 'Student';
+
+SELECT Resource_ID, Resource_Title, Resource_Type, Class_Name
+FROM Res, Class
+Where Res.Class_No = Class.Class_No AND Class.Class_Name = 'Physics';
+
+SELECT Res.Author, COUNT (Res.Author) as Times_Borrowed
+FROM Borrow
+INNER JOIN Res ON Res.Resource_ID = Borrow.Resource_ID
+GROUP BY Res.Author
+ORDER BY Times_Borrowed DESC
+FETCH NEXT 5 ROWS ONLY;
+
+Select * From Full_Res
+Where Resource_Title LIKE '%Forensic Science';
+
+Select * From Full_Res
+Where Author LIKE '%Mike%';
+
+SELECT count(Resource_ID), Resource_Type
+FROM Res
+group by (resource_type);
+
+SELECT Borrow.Member_ID, Member_Name, Member_Email, Loan_ID, Fine
+FROM 
+Member, Borrow, Fine
+WHERE
+Borrow.Member_ID = Member.Member_ID AND Fine.LOanID = Borrow.Loan_ID
+ORDER BY Fine DESC;
+
+SELECT UNIQUE Full_borrow.RID, Resource_Title
+FROM Full_borrow, Res
+WHERE Full_borrow.RID = Res.Resource_ID AND Full_borrow.status = 'Current';
+
+SELECT Class_Name, NVL(NoOfResources,0) AS NoOfResources From
+ (SELECT Class_No, Class_Name From Class) a LEFT OUTER JOIN
+ (Select count(Resource_ID) AS NoOfResources, Class_No From Res Group BY Class_No) b
+ON a.Class_No = b.Class_No
+Order By Class_Name;
+
+Select SUM (Amount_Paid)
+FROM Fine_Payment
+WHERE Date_Paid
+BETWEEN '01-DEC-20' AND '12-DEC-20';
+
+SELECT Member.Member_ID, Member.Member_Name, Member.Expiry_Date, c.STATUS, c.fine FROM
+    Member, 
+    (SELECT a.Member_ID, NVL(b.Member_Status, 'ACTIVE') AS STATUS, fine FROM
+        (SELECT Member_ID FROM MEMBER) a LEFT OUTER JOIN
+        (SELECT MID as Member_ID, TotalFine AS Fine, 'SUSPEND' AS Member_Status FROM Suspend) b
+    ON a.Member_ID = b.Member_ID) c
+WHERE Member.Member_ID = c.Member_ID and Member_Email = 'tanyasyed_@yahoo.com';
+
+SELECT Loan_ID, Resource_ID, Due_Date, Fine, Return_Date FROM
+(SELECT f.Loan_ID, Member_ID, Resource_ID, Due_Date, Fine, Return_Date FROM 
+(SELECT d.Loan_ID, Resource_ID, Member_ID, Due_Date, Return_Date FROM
+    (SELECT Loan_ID, Resource_ID, Member_ID, Due_Date from Borrow) d LEFT OUTER JOIN
+    (SELECT Loan_ID, Return_Date From Return) e
+ON d.Loan_ID = e.Loan_ID) f LEFT OUTER JOIN
+(SELECT a.Loan_ID, Fine  From 
+     (SELECT Loan_ID From Borrow) a LEFT OUTER JOIN
+     (SELECT LoanID, Fine From Fine) b
+ ON a.Loan_ID = b.LoanID) c
+ON f.Loan_ID = c.Loan_ID) k, Member
+WHERE Member.Member_ID = k.Member_ID and Member.Member_Email = 'rohitgarg12@hotmail.com';
+
+
+Triggers
+
+create or replace trigger borrow_valid
+before insert on borrow
+for each row
+declare
+pd res.loan_period%type;
+NoCurrent number;
+mtype member.member_type%type;
+maxloans copies.copies_allowed%type;
+exp_date member.expiry_date%type;
+suspen number;
+fine number;
+maxtime res.loan_period%type;
+Avail Full_Res.Available_Copies%type;
+begin
+    select count(*) into NoCurrent from borrow where (not(loan_id = any(select loan_id from return))) and member_id = :new.member_id;
+  select loan_period into pd from res where resource_id = :new.resource_id;
+  select member_type into mtype from member where member_id = :new.member_id;
+  select expiry_date into exp_date from member where member_id = :new.member_id;
+  select copies_allowed into maxloans from copies where copies.member_type = mtype;
+  select count(*) into suspen from suspend where :new.member_id = any(select mid from suspend); 
+  Select Loan_Period into maxtime from Res where :new.Resource_id = Res.Resource_id;
+  Select Available_Copies Into Avail from Full_Res where :new.Resource_ID = Full_Res.Resource_ID;
+  :new.due_date := to_date (sysdate) + pd;
+
+  if NoCurrent >= maxloans THEN
+  raise_application_error (-20134,'Already have maximum current loans');
+  else
+    if exp_date < to_date (sysdate) + pd THEN
+    raise_application_error (-20135,'Due date exceed your expiry date');
+	else
+		if suspen != 0 then
+                raise_application_error (-20136, 'Account Suspended - Return resource or pay full fine');
+		else
+			if maxtime = 0 Then
+			raise_application_error (-20137, 'The resource cannot be borrowed');
+            else
+                    if Avail = 0 Then
+                    raise_application_error (-20138, 'The resource is not available');
+                    end if;
+			end if;	
+		end if;
+    end if;
+    
+  end if;
+end;
+/
+
+
+create or replace trigger return_table
+before insert on Return
+for each row
+begin
+    :new.Return_Date := sysdate;
+end;
+/
+
+create or replace trigger fine_pay_check
+before insert on fine_payment
+for each row
+declare
+times number;
+datedue Borrow.Due_Date%type;
+datereturn Return.Return_date%type;
+begin
+    :new.Date_Paid := to_date(sysdate);
+    select count(*) into times from return where :new.Loan_id = return.loan_id;
+    select due_Date Into datedue from borrow where :new.Loan_id = borrow.loan_id;    
+    if times = 0 then
+    raise_application_error(-20321, 'First return the resource');
+    else
+        select return_date into datereturn from return where :new.Loan_id = return.loan_id;
+        if not( TRUNC((datereturn - datedue), 0) = :new.Amount_Paid) then
+        raise_application_error(-20323, 'The amount being paid is unequal the loan amount');
+        end if;
+    end if;
+end;
+/
+
+
+create or replace trigger update_fine
+after insert on fine_payment
+for each row
+begin
+    DELETE fine 
+    Where :new.Loan_ID = Fine.LoanID;
+end;
+/
